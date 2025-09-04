@@ -1,27 +1,29 @@
 package io.orbyt.domain.aspect
 
+import io.orbyt.domain.model.BusinessRegistry
 import io.orbyt.library.annot.BusinessUnit
 import io.orbyt.library.port.out.CommunicationRegistry
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
-import org.springframework.stereotype.Component
 
 @Aspect
-@Component
 class BusinessUnitAspect(
     private val registry: CommunicationRegistry
 ) {
 
     @Around("@annotation(businessUnit)")
     fun capture(joinPoint: ProceedingJoinPoint, businessUnit: BusinessUnit): Any? {
-        try {
+        if (registry !is BusinessRegistry)
             return joinPoint.proceed()
-        } catch (ex: Exception) {
-//            CommunicationRegistry.register(BusinessUnit.name, ex.message.toString())
-            throw ex
-        } finally {
-//            CommunicationRegistry.register(BusinessUnit.name)
+
+        try {
+            val result = joinPoint.proceed()
+            registry.registerSignal(businessUnit.name)
+            return result
+        } catch (e: Throwable) {
+            registry.registerSignal(businessUnit.name, e.message.toString())
+            throw e
         }
     }
 }

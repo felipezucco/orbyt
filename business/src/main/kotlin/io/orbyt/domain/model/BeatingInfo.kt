@@ -4,13 +4,21 @@ import io.orbyt.library.port.out.BeatingErrorInterface
 import java.time.LocalDateTime
 
 data class BeatingInfo(
-    val businessUnit: String
+    private val _businessUnit: String
 ): Signal {
-    var calls: Int = 0
-    var errors: MutableList<BeatingErrorInterface> = mutableListOf()
+    private var _calls: Int = 0
+    private var _errors: MutableList<BeatingErrorInterface> = mutableListOf()
 
-    fun addError(error: String) {
-        this.errors.add(BeatingError(error, 1, timestamp = LocalDateTime.now().toString()))
+    val calls: Int get() = _calls
+    val businessUnit: String get() = _businessUnit
+
+    fun calls() {
+        this._calls++
+    }
+
+    fun calls(error: String?) {
+        this.calls()
+        error?.let { this._errors.add(BeatingError(error, 1, timestamp = LocalDateTime.now().toString())) }
     }
 
 }

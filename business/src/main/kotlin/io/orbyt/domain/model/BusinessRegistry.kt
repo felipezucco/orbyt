@@ -2,12 +2,13 @@ package io.orbyt.domain.model
 
 import io.orbyt.library.port.out.CommunicationRegistry
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.properties.Delegates
 
 class BusinessRegistry: CommunicationRegistry {
-    private val data: ConcurrentHashMap<String, Any> = ConcurrentHashMap()
-    private val domains: ConcurrentHashMap<String, MutableList<BusinessDomain>> = ConcurrentHashMap()
-    private val snapshot: MutableList<BeatingInfo> = mutableListOf()
-    private var ready: Boolean = false
+    private val _data: ConcurrentHashMap<String, Any> = ConcurrentHashMap()
+    private val _domains: ConcurrentHashMap<String, MutableList<BusinessDomain>> = ConcurrentHashMap()
+    private val _snapshot: MutableList<BeatingInfo> = mutableListOf()
+    private var _ready: Boolean = false
 
     companion object {
         fun instance(): BusinessRegistry = BusinessRegistry()
@@ -17,43 +18,53 @@ class BusinessRegistry: CommunicationRegistry {
 
     override fun greeting(): GreetingInfo {
         return GreetingInfo(
-            name = data["applicationName"] as String,
-            apiVersion = data["apiVersion"] as String,
-            hash = data["hash"] as String,
-            frameworkVersion = data["frameworkVersion"] as String,
-            domains = domains
+            name = _data["applicationName"] as String,
+            apiVersion = _data["apiVersion"] as String,
+            hash = _data["hash"] as String,
+            frameworkVersion = _data["frameworkVersion"] as String,
+            domains = _domains
         )
     }
 
     override fun signal(): List<BeatingInfo> {
-        return snapshot
+        return this._snapshot
     }
 
     override fun refresh() {
-        snapshot.clear()
+        this._snapshot.clear()
+        this.stop()
     }
 
     override fun stop() {
-        this.ready = false
+        this._ready = false
     }
 
     fun start() {
-        this.ready = true
+        this._ready = true
     }
 
     override fun ready(): Boolean {
-        return this.ready
+        return this._ready
     }
 
     fun root(key: String, value: Any) {
-        data.put(key, value)
+        _data.put(key, value)
     }
 
     fun registerDomain(domain: String, info: BusinessUnitInfo) {
-        val domains = this.domains.getOrPut(domain, { mutableListOf() })
+        val domains = this._domains.getOrPut(domain, { mutableListOf() })
         domains.find { it.name == info.name }?.also {
             it.businessUnits.add(info)
         }?: domains.add(BusinessDomain(domain, mutableListOf(info)))
+    }
+
+    fun registerSignal(businessUnit: String, error: String? = null) {
+        _snapshot.find { it.businessUnit == businessUnit }?.calls(error) ?:
+        _snapshot.add(BeatingInfo(businessUnit).apply { calls(error) })
+
+        if (!this._ready) {
+            this.start()
+        }
     }
 
 }
