@@ -18,6 +18,7 @@ class CommunicationRoutine(
     private val registry: CommunicationRegistry,
     private val communicationGateway: CommunicationGateway
 ): ApplicationEventPublisherAware {
+
     private val _scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var _applicationEventPublisher: ApplicationEventPublisher? = null
 
