@@ -1,0 +1,14 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url = 'https://repo.spring.io/snapshot' }
+    }
+}
+
+rootProject.name = 'orbyt'
+
+include 'business'
+include 'core'
+include 'starter'
+

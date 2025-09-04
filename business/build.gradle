@@ -1,0 +1,13 @@
+dependencies {
+    implementation project(':core')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'business'
+            version = '1.0.0'
+        }
+    }
+}
