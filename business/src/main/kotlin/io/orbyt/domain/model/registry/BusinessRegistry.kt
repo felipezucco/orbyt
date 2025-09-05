@@ -1,14 +1,23 @@
-package io.orbyt.domain.model
+package io.orbyt.domain.model.registry
 
+import io.orbyt.domain.model.BeatingInfo
+import io.orbyt.domain.model.BusinessDomain
+import io.orbyt.domain.model.BusinessUnitInfo
+import io.orbyt.domain.model.GreetingInfo
+import io.orbyt.domain.model.events.CommunicationReadyEvent
+import io.orbyt.domain.model.events.ScanReadyEvent
 import io.orbyt.library.port.out.CommunicationRegistry
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.ApplicationEventPublisherAware
+import org.springframework.context.ApplicationListener
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.properties.Delegates
 
-class BusinessRegistry: CommunicationRegistry {
+class BusinessRegistry: CommunicationRegistry, ApplicationEventPublisherAware, ApplicationListener<ScanReadyEvent> {
     private val _data: ConcurrentHashMap<String, Any> = ConcurrentHashMap()
     private val _domains: ConcurrentHashMap<String, MutableList<BusinessDomain>> = ConcurrentHashMap()
     private val _snapshot: MutableList<BeatingInfo> = mutableListOf()
     private var _ready: Boolean = false
+    private var _applicationEventPublisher: ApplicationEventPublisher? = null
 
     companion object {
         fun instance(): BusinessRegistry = BusinessRegistry()
@@ -67,4 +76,12 @@ class BusinessRegistry: CommunicationRegistry {
         }
     }
 
+    override fun onApplicationEvent(event: ScanReadyEvent) {
+        this.start()
+        this._applicationEventPublisher?.publishEvent(CommunicationReadyEvent(this))
+    }
+
+    override fun setApplicationEventPublisher(applicationEventPublisher: ApplicationEventPublisher) {
+        this._applicationEventPublisher = applicationEventPublisher
+    }
 }

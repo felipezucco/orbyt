@@ -26,7 +26,7 @@ subprojects {
 		withSourcesJar()
 		withJavadocJar() // opcional: também publica o javadoc.jar
 		toolchain {
-			languageVersion = JavaLanguageVersion.of(21)
+			languageVersion = JavaLanguageVersion.of(17)
 		}
 	}
 
@@ -42,7 +42,8 @@ subprojects {
 		api "org.springframework:spring-context"
 		api "org.springframework:spring-aop"
 		api "org.aspectj:aspectjweaver"
-		api "org.springframework:spring-context-support"
+
+		api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0'
 
 		implementation("com.squareup.okhttp3:okhttp:4.11.0")
 		implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
@@ -60,8 +61,8 @@ subprojects {
 	// Configuração do compilador Kotlin (Groovy DSL)
 	tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 		kotlinOptions {
+			jvmTarget = "17"
 			freeCompilerArgs += "-Xjsr305=strict"
-			jvmTarget = "21"
 		}
 	}
 

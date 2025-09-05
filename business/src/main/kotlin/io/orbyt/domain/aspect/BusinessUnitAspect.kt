@@ -1,6 +1,6 @@
 package io.orbyt.domain.aspect
 
-import io.orbyt.domain.model.BusinessRegistry
+import io.orbyt.domain.model.registry.BusinessRegistry
 import io.orbyt.library.annot.BusinessUnit
 import io.orbyt.library.port.out.CommunicationRegistry
 import org.aspectj.lang.ProceedingJoinPoint

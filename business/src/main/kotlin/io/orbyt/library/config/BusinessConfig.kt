@@ -1,11 +1,10 @@
 package io.orbyt.library.config
 
 import io.orbyt.domain.aspect.BusinessUnitAspect
-import io.orbyt.domain.model.BusinessRegistry
-import io.orbyt.library.BusinessUnitScanner
+import io.orbyt.domain.model.BusinessUnitScanner
+import io.orbyt.domain.model.registry.BusinessRegistry
 import io.orbyt.library.port.out.CommunicationRegistry
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.SpringVersion
@@ -27,8 +26,8 @@ class BusinessConfig(
     }
 
     @Bean
-    fun businessUnitScanner(registry: CommunicationRegistry, context: ApplicationContext): BusinessUnitScanner {
-        return BusinessUnitScanner(registry, context)
+    fun businessUnitScanner(registry: CommunicationRegistry): BusinessUnitScanner {
+        return BusinessUnitScanner(registry)
     }
 
     @Bean

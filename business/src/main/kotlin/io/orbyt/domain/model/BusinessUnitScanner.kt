@@ -1,12 +1,21 @@
-package io.orbyt.library
+package io.orbyt.domain.model
 
 import io.orbyt.domain.annot.EnableOrbit
-import io.orbyt.domain.model.BusinessRegistry
-import io.orbyt.domain.model.BusinessUnitInfo
+import io.orbyt.domain.model.events.ScanReadyEvent
+import io.orbyt.domain.model.registry.BusinessRegistry
 import io.orbyt.library.annot.BusinessUnit
 import io.orbyt.library.port.out.CommunicationRegistry
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.springframework.context.ApplicationContext
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.ApplicationEventPublisherAware
+import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
+import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.core.type.filter.AssignableTypeFilter
 import java.security.MessageDigest
@@ -14,13 +23,15 @@ import kotlin.reflect.full.declaredFunctions
 import kotlin.reflect.full.findAnnotation
 
 class BusinessUnitScanner(
-    private val registry: CommunicationRegistry,
-    private val context: ApplicationContext
-) {
+    private val registry: CommunicationRegistry
+): ApplicationEventPublisherAware, ApplicationListener<ContextRefreshedEvent> {
 
-    init {
-        onCreate()
+    private val handler = CoroutineExceptionHandler { _, ex ->
+        println("Erro no BusinessUnitScanner: ${ex.message}")
     }
+
+    private val _scope : CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default + handler)
+    private var _eventPublisher : ApplicationEventPublisher? = null
 
     private fun generateClassHash(clazz: Class<*>): String {
         val bytes = clazz.getResourceAsStream("/${clazz.name.replace('.', '/')}.class")?.readBytes()
@@ -34,15 +45,14 @@ class BusinessUnitScanner(
         return hashBytes.joinToString("") { "%02x".format(it) }
     }
 
-    fun onCreate() {
+    fun onCreate(context: ApplicationContext) {
         val scanner = ClassPathScanningCandidateComponentProvider(false)
         scanner.addIncludeFilter(AssignableTypeFilter(Any::class.java))
 
-        findRootPackages().let { pkg -> pkg.forEach { this.scan(scanner, it) }}
+        findRootPackages(context).let { pkg -> pkg.forEach { this.scan(scanner, it) }}
     }
 
     private fun scan(scanner: ClassPathScanningCandidateComponentProvider, rootPackage: String) {
-
         val candidates = scanner.findCandidateComponents(rootPackage)
         candidates.forEach { beanDef ->
             val clazz = Class.forName(beanDef.beanClassName)
@@ -62,10 +72,9 @@ class BusinessUnitScanner(
                 }
             }
         }
-        (registry as BusinessRegistry).start()
     }
 
-    private fun findRootPackages(): Array<String> {
+    private fun findRootPackages(context: ApplicationContext): Array<String> {
         val mainBeanName = context.getBeanNamesForAnnotation(EnableOrbit::class.java)
             .firstOrNull()
             ?: throw IllegalArgumentException("EnableOrbit annotation not found")
@@ -75,10 +84,20 @@ class BusinessUnitScanner(
 
         // busca recursiva, incluindo meta-anotações
         val annotation = AnnotatedElementUtils.findMergedAnnotation(mainClass, EnableOrbit::class.java)
-            ?: throw IllegalArgumentException("@EnableSolar annotation not present on class $mainClass")
+            ?: throw IllegalArgumentException("@EnableOrbyt annotation not present on class $mainClass")
 
         return annotation.basePackages
     }
 
+    override fun setApplicationEventPublisher(applicationEventPublisher: ApplicationEventPublisher) {
+        this._eventPublisher = applicationEventPublisher
+    }
 
+    override fun onApplicationEvent(event: ContextRefreshedEvent) {
+        if (event.applicationContext.parent != null) return
+        _scope.launch {
+            onCreate(event.applicationContext)
+            _eventPublisher?.publishEvent(ScanReadyEvent(this@BusinessUnitScanner))
+        }
+    }
 }
