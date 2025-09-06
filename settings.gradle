@@ -11,4 +11,6 @@ rootProject.name = 'orbyt'
 include 'business'
 include 'core'
 include 'starter'
+include 'web'
+
 

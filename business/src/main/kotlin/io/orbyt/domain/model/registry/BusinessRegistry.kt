@@ -57,7 +57,7 @@ class BusinessRegistry: CommunicationRegistry, ApplicationEventPublisherAware, A
     }
 
     fun root(key: String, value: Any) {
-        _data.put(key, value)
+        this._data.put(key, value)
     }
 
     fun registerDomain(domain: String, info: BusinessUnitInfo) {

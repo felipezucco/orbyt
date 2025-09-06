@@ -1,0 +1,15 @@
+dependencies {
+    api project(":starter")
+
+    implementation("org.springframework.boot:spring-boot-starter-web")
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'web-starter'
+            version = '1.0.0'
+        }
+    }
+}
