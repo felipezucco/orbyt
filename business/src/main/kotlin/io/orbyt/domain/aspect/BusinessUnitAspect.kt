@@ -2,7 +2,7 @@ package io.orbyt.domain.aspect
 
 import io.orbyt.domain.model.registry.BusinessRegistry
 import io.orbyt.library.annot.BusinessUnit
-import io.orbyt.library.port.out.CommunicationRegistry
+import io.orbyt.domain.model.CommunicationRegistry
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect

@@ -4,7 +4,6 @@ import io.orbyt.domain.annot.EnableOrbit
 import io.orbyt.domain.model.events.ScanReadyEvent
 import io.orbyt.domain.model.registry.BusinessRegistry
 import io.orbyt.library.annot.BusinessUnit
-import io.orbyt.library.port.out.CommunicationRegistry
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

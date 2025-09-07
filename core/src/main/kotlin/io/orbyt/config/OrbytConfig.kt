@@ -3,7 +3,7 @@ package io.orbyt.config
 import io.orbyt.adapter.http.BlackHoleClient
 import io.orbyt.adapter.`in`.scheduler.CommunicationRoutine
 import io.orbyt.library.port.out.CommunicationGateway
-import io.orbyt.library.port.out.CommunicationRegistry
+import io.orbyt.domain.model.CommunicationRegistry
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

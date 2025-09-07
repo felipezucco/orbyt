@@ -6,24 +6,31 @@ import io.orbyt.domain.model.BusinessUnitInfo
 import io.orbyt.domain.model.GreetingInfo
 import io.orbyt.domain.model.events.CommunicationReadyEvent
 import io.orbyt.domain.model.events.ScanReadyEvent
-import io.orbyt.library.port.out.CommunicationRegistry
+import io.orbyt.domain.model.CommunicationRegistry
+import io.orbyt.domain.model.events.GreetingSentEvent
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationEventPublisherAware
 import org.springframework.context.ApplicationListener
+import org.springframework.context.event.EventListener
 import java.util.concurrent.ConcurrentHashMap
 
-class BusinessRegistry: CommunicationRegistry, ApplicationEventPublisherAware, ApplicationListener<ScanReadyEvent> {
+class BusinessRegistry: CommunicationRegistry, ApplicationEventPublisherAware {
     private val _data: ConcurrentHashMap<String, Any> = ConcurrentHashMap()
     private val _domains: ConcurrentHashMap<String, MutableList<BusinessDomain>> = ConcurrentHashMap()
     private val _snapshot: MutableList<BeatingInfo> = mutableListOf()
     private var _ready: Boolean = false
     private var _applicationEventPublisher: ApplicationEventPublisher? = null
+    private var _key: String? = null
 
     companion object {
         fun instance(): BusinessRegistry = BusinessRegistry()
     }
 
     private constructor()
+
+    override var key: String?
+        get() = this._key
+        set(value) {}
 
     override fun greeting(): GreetingInfo {
         return GreetingInfo(
@@ -76,7 +83,13 @@ class BusinessRegistry: CommunicationRegistry, ApplicationEventPublisherAware, A
         }
     }
 
-    override fun onApplicationEvent(event: ScanReadyEvent) {
+    @EventListener(GreetingSentEvent::class)
+    fun onGreetingSent(event: GreetingSentEvent) {
+        this._key = event.greetingResponse.key
+    }
+
+    @EventListener(ScanReadyEvent::class)
+    fun onScanReady(event: ScanReadyEvent) {
         this.start()
         this._applicationEventPublisher?.publishEvent(CommunicationReadyEvent(this))
     }

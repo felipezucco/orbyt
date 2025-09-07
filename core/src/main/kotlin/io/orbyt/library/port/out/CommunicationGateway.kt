@@ -6,8 +6,8 @@ import okhttp3.Response
 
 interface CommunicationGateway {
 
-    fun pointAntenna(pInfo: Greeting): Response
+    suspend fun pointAntenna(pInfo: Greeting): Response
 
-    fun transmitSignal(pInfo: List<Signal>): Response
+    suspend fun transmitSignal(pInfo: List<Signal>): Response
 
 }

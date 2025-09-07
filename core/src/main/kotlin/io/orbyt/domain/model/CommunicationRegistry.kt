@@ -1,9 +1,7 @@
-package io.orbyt.library.port.out
-
-import io.orbyt.domain.model.Greeting
-import io.orbyt.domain.model.Signal
+package io.orbyt.domain.model
 
 interface CommunicationRegistry {
+    var key: String?
 
     fun greeting(): Greeting
 

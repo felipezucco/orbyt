@@ -1,6 +1,6 @@
 package io.orbyt.library.config
 
-import io.orbyt.library.port.out.CommunicationRegistry
+import io.orbyt.domain.model.CommunicationRegistry
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
