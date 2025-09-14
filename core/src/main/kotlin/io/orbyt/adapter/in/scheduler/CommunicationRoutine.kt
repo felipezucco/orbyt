@@ -1,13 +1,13 @@
 package io.orbyt.adapter.`in`.scheduler
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.jsonMapper
-import io.orbyt.domain.model.events.CommunicationReadyEvent
-import io.orbyt.domain.model.events.SignalSentEvent
-import io.orbyt.library.port.out.CommunicationGateway
 import io.orbyt.domain.model.CommunicationRegistry
 import io.orbyt.domain.model.GreetingResponse
+import io.orbyt.domain.model.events.CommunicationReadyEvent
 import io.orbyt.domain.model.events.GreetingSentEvent
+import io.orbyt.domain.model.events.SignalSentEvent
+import io.orbyt.library.port.out.CommunicationGateway
+import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,17 +17,15 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import okio.use
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationEventPublisherAware
-import org.springframework.context.ApplicationListener
 import org.springframework.context.event.EventListener
 import kotlin.time.Duration.Companion.seconds
 
 class CommunicationRoutine(
     private val registry: CommunicationRegistry,
     private val communicationGateway: CommunicationGateway
-): ApplicationEventPublisherAware, AutoCloseable {
+): ApplicationEventPublisherAware {
 
     private val handler = CoroutineExceptionHandler { asd, ex ->
         println("Erro na CommunicationRoutine: ${ex.message}")
@@ -75,7 +73,8 @@ class CommunicationRoutine(
         this._applicationEventPublisher = applicationEventPublisher
     }
 
-    override fun close() {
+    @PreDestroy
+    fun onDestroy() {
         beatJob?.cancel()
         _scope.cancel()
     }

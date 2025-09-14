@@ -20,6 +20,7 @@ class BusinessRegistry: CommunicationRegistry, ApplicationEventPublisherAware {
     private val _snapshot: MutableList<BeatingInfo> = mutableListOf()
     private var _ready: Boolean = false
     private var _applicationEventPublisher: ApplicationEventPublisher? = null
+
     private var _key: String? = null
 
     companion object {

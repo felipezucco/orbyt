@@ -1,1 +1,4 @@
 io.orbyt.library.config.WebFilterConfig
+io.orbyt.library.clients.okhttp.OkHttpConfig
+io.orbyt.library.clients.spring.restclient.RestClientConfig
+io.orbyt.library.clients.spring.resttemplate.RestTemplateConfig
